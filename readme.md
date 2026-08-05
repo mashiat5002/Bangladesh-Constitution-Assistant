@@ -18,6 +18,18 @@ This project demonstrates how modern **Natural Language Processing (NLP)**, **se
 
 ---
 
+## 🖥️ Project Demonstration
+
+<p align="center">
+  <img src="public/screenshot.png" alt="Bangladesh Constitution Assistant Demo" width="800"/>
+</p>
+
+<p align="center">
+  AI-powered constitutional question answering interface
+</p>
+
+
+
 # ✨ Features
 
 * 🔍 Detects whether a question is related to the Constitution
