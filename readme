@@ -1,86 +1,196 @@
-# Project Proposal
+# 🇧🇩 Bangladesh Constitution Assistant  
+## Transformer-Based Legal Question Answering System
 
-# Bangladesh Constitution Assistant: Transformer-Based Legal Question Answering System
+<p align="center">
+  <img src="public/screenshot.png" alt="Bangladesh Constitution Assistant Demo" width="850"/>
+</p>
 
-## 1. Project Title
-
-**Bangladesh Constitution Assistant: An AI-Based Legal Question Answering System Using Transformer Models**
-
----
-
-## 2. Project Overview
-
-The Bangladesh Constitution Assistant is an AI-powered question-answering system designed to provide accurate answers related to the Constitution of Bangladesh. The system uses a multi-stage NLP pipeline that first identifies whether a user's question is relevant to constitutional knowledge and then generates answers using a fine-tuned mBART transformer model trained on a Bangladesh Constitution question-answering dataset.
-
-The system combines semantic search, classification, article retrieval, and transformer-based generation to reduce irrelevant responses and improve answer accuracy.
+<p align="center">
+  An AI-powered legal question answering system that provides accurate constitutional information of Bangladesh using Transformer models, semantic retrieval, and deep learning techniques.
+</p>
 
 ---
 
-## 3. System Workflow
+## 📌 Project Overview
 
-The user submits a question through the web interface. The question passes through several processing stages:
+**Bangladesh Constitution Assistant** is an AI-based legal question-answering system designed to answer user queries related to the **Constitution of Bangladesh**.
 
-### Step 1: Question Relevance Detection
+The system follows a multi-stage NLP pipeline that:
 
-The first stage determines whether the question is related to the Bangladesh Constitution.
+- Detects whether a user's question is constitution-related.
+- Retrieves the most relevant constitutional article.
+- Uses a fine-tuned **mBART Transformer model** to generate a context-based answer.
 
-* A relevance classification model is trained using a binary labeled dataset:
+By combining **semantic search, classification, article retrieval, and transformer-based generation**, the system reduces irrelevant responses and improves answer accuracy.
 
-  * Label 1 → Relevant constitutional question
-  * Label 0 → Irrelevant question
+---
 
-* The classifier is implemented using a Sentence Transformer embedding model:
+# 🚀 System Workflow
 
-  * **Model:** `intfloat/e5-base-v2`
-  * **Search Method:** FAISS vector similarity search index
+The complete pipeline consists of three major stages:
+
+```
+                 User Question
+                       |
+                       v
+              Next.js Frontend
+                       |
+                       v
+              Backend API Server
+                       |
+                       v
+        ┌──────────────────────────┐
+        │ Question Relevance Model │
+        │   E5-base-v2 + FAISS     │
+        └──────────────────────────┘
+                       |
+          ┌────────────┴────────────┐
+          |                         |
+       Label 0                   Label 1
+          |                         |
+          v                         v
+ Reject Question        Constitutional Article Retrieval
+                                    |
+                    ┌───────────────┴───────────────┐
+                    |                               |
+          Direct Article Lookup        Semantic Article Matching
+                                      XLM-RoBERTa Model
+                    |                               |
+                    └───────────────┬───────────────┘
+                                    |
+                                    v
+                       Constitutional Article Context
+                                    |
+                                    v
+                              mBART Model
+                                    |
+                                    v
+                           Generated Answer
+                                    |
+                                    v
+                            Frontend Display
+```
+
+---
+
+# 🧠 Model Architecture
+
+## 1. Question Relevance Detection
+
+The first stage determines whether the user query is relevant to the Constitution of Bangladesh.
+
+### Training Data
+
+A binary classification dataset is used:
+
+| Label | Meaning |
+|---|---|
+| 1 | Relevant constitutional question |
+| 0 | Irrelevant question |
+
+### Model
+
+**Sentence Transformer**
+
+```
+Model: intfloat/e5-base-v2
+```
+
+### Retrieval Method
+
+```
+FAISS Vector Similarity Search Index
+```
+
+Process:
+
+```
+User Question
+      |
+      v
+Generate Embedding
+      |
+      v
+FAISS Similarity Search
+      |
+      v
+Relevant / Irrelevant Decision
+```
 
 If the output is:
 
-* **0 (Irrelevant):**
+### ❌ Label 0
 
-  * The question is rejected.
-  * It is not passed to the answer generation model.
+The question is rejected and does not proceed to the answer generation model.
 
-* **1 (Relevant):**
+### ✅ Label 1
 
-  * The question proceeds to the next stage.
-
----
-
-## 4. Constitutional Article Retrieval
-
-For relevant questions, the system identifies the most suitable constitutional article to provide proper context to the answer generation model.
-
-The retrieval process uses a hybrid approach:
-
-### Direct Article Matching
-
-If the user explicitly mentions an article number, such as:
-
-"Explain Article 27"
-
-the system directly identifies and retrieves the corresponding article text from the constitutional article lookup table.
-
-### Semantic Article Matching
-
-If no article number is directly mentioned, a semantic matching model is used:
-
-* **Model:** `xlm-roberta-base`
-* **Purpose:** Match user questions with the most relevant constitutional article.
-
-The retrieved article text is used as context for the final answer generation stage.
+The question continues to the constitutional retrieval stage.
 
 ---
 
-## 5. Answer Generation Model
+# 📚 Constitutional Article Retrieval
 
-The final answer is generated using a fine-tuned transformer model.
+After identifying a valid constitutional question, the system finds the most relevant article to provide context.
 
-### Model Details
+The retrieval mechanism follows a hybrid approach.
 
-* **Model:** mBART
-* **Training Dataset:** Bangladesh Constitution Question Answering Dataset
-* **Training Format:**
+---
+
+## Method 1: Direct Article Lookup
+
+If the user mentions an article number:
+
+Example:
+
+```
+Explain Article 27
+```
+
+The system directly retrieves:
+
+```
+Article 27:
+Equality before law
+```
+
+from the constitutional article database.
+
+---
+
+## Method 2: Semantic Article Matching
+
+If the article number is not directly mentioned, a semantic matching model identifies the appropriate article.
+
+### Model
+
+```
+xlm-roberta-base
+```
+
+### Purpose
+
+- Understand user intent.
+- Match the question with the most relevant constitutional article.
+- Provide accurate context to the generation model.
+
+---
+
+# 🤖 Answer Generation Model
+
+The final response is generated using a fine-tuned transformer model.
+
+## Model
+
+```
+mBART
+```
+
+## Training Dataset
+
+Bangladesh Constitution Question Answering Dataset
+
+Training format:
 
 ```
 Context:
@@ -93,96 +203,124 @@ Answer:
 Expected Constitutional Answer
 ```
 
-The model receives:
+During inference:
 
 ```
 Article Context + User Question
-```
-
-and generates the final constitutional answer.
-
----
-
-## 6. System Architecture
-
-```
-User Question
-       |
-       v
-Next.js Frontend
-       |
-       v
-Backend API Server
-       |
-       v
-Relevance Classifier
-(E5-base-v2 + FAISS)
-       |
-       |
-       |---- Label 0
-       |        |
-       |        v
-       |   Reject Question
-       |
-       |
-       |---- Label 1
-                |
-                v
-       Article Retrieval System
-       |
-       |---- Direct Article Lookup
-       |
-       |---- Semantic Matching
-             (Fine-tuned XLM-RoBERTa)
-                |
-                v
-       Constitutional Article Context
-                |
-                v
-             mBART Model
-                |
-                v
-          Generated Answer
-                |
-                v
-          Frontend Output
+              |
+              v
+          mBART Model
+              |
+              v
+       Constitutional Answer
 ```
 
 ---
 
-## 7. Technology Stack
+# 🛠️ Technology Stack
 
-### Frontend
+## Frontend
 
-* Next.js
-* User interface for submitting questions and displaying answers
-
-### Backend
-
-* Python-based API server
-* Hosted using Google Colab environment
-* Exposed through Ngrok for external access
-
-### Machine Learning Components
-
-* Sentence Transformer (`intfloat/e5-base-v2`)
-* FAISS similarity search index
-* Fine-tuned XLM-RoBERTa semantic matcher
-* Fine-tuned mBART question-answering model
+- Next.js
+- Modern web interface for:
+  - Question submission
+  - Answer visualization
 
 ---
 
-## 8. Objective
+## Backend
 
-The main objective of this project is to develop an intelligent constitutional assistant capable of:
-
-* Filtering irrelevant questions before generation
-* Retrieving the correct constitutional article context
-* Providing accurate answers based on the Constitution of Bangladesh
-* Reducing hallucination by grounding responses on constitutional text
+- Python API Server
+- Google Colab Runtime
+- Ngrok Tunnel for external access
 
 ---
 
-## 9. Expected Outcome
+## Deep Learning Components
 
-The proposed system will provide users with a reliable AI assistant that can answer constitutional questions by combining classification, semantic retrieval, and transformer-based text generation techniques.
+| Component | Technology |
+|-|-|
+| Text Embedding | Sentence Transformer (`intfloat/e5-base-v2`) |
+| Vector Search | FAISS |
+| Article Matching | Fine-tuned XLM-RoBERTa |
+| Answer Generation | Fine-tuned mBART |
+
+---
+
+# 🎯 Project Objectives
+
+The main objectives are:
+
+✅ Filter irrelevant questions before generation  
+<br>
+✅ Retrieve the correct constitutional article context  
+<br>
+✅ Generate accurate answers using transformer-based models  
+<br>
+✅ Reduce hallucination by grounding answers on constitutional documents  
+<br>
+✅ Demonstrate practical application of Deep Learning in legal NLP  
+
+---
+
+# 🌟 Key Features
+
+- 🔍 Semantic question understanding
+- ⚖️ Constitution-specific knowledge retrieval
+- 🧠 Transformer-based answer generation
+- 📖 Article-aware response generation
+- 🚫 Irrelevant query filtering
+- 🌐 Web-based user interface
+
+---
+
+# 📂 Project Structure
+
+```
+Bangladesh-Constitution-Assistant/
+
+│
+├── frontend/
+│   └── Next.js Application
+│
+├── backend/
+│   ├── API Server
+│   ├── mBART Model
+│   ├── FAISS Index
+│   ├── Article Database
+│   └── Retrieval Pipeline
+│
+├── public/
+│   └── screenshot.png
+│
+└── README.md
+```
+
+---
+
+# 📌 Expected Outcome
+
+The proposed system will provide an intelligent constitutional assistant capable of answering Bangladesh Constitution-related questions by integrating:
+
+- Deep Learning
+- Natural Language Processing
+- Transformer Models
+- Semantic Search
+- Knowledge Retrieval
+
+The system aims to make constitutional information more accessible while maintaining accuracy through context-based generation.
+
+---
+
+# 👨‍💻 Developed For
+
+**Course:** Deep Learning  
+**Course Code:** CSE-460  
+
+**Institution:** North East University Bangladesh
+
+---
+
+# 📜 License
+
+This project is developed for academic purposes.
